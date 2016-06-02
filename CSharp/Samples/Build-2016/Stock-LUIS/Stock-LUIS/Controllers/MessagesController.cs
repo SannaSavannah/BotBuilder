@@ -1,13 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Connector.Utilities;
-using Newtonsoft.Json;
 
 namespace Stock_LUIS
 {
@@ -22,31 +17,37 @@ namespace Stock_LUIS
         {
             if (message.Type == "Message")
             {
-                bool bSetStock = false;
                 StockLUIS stLuis = await LUISStockClient.ParseUserInput(message.Text);
-                string strRet = string.Empty;
-                string strStock = message.Text;
+                string strRet;
 
-                if (stLuis.intents.Count() > 0)
+                if (stLuis.intents.Any())
                 {
                     switch (stLuis.intents[0].intent)
                     {
-                        case "RepeatLastStock":
-                            strStock = message.GetBotUserData<string>("LastStock");
-                            if (null == strStock)
-                            {
-                                strRet = "I don't have a previous stock to look up!";
-                            }
+                        case "ShowLatestStampings":
+                            if (stLuis.entities.Any())
+                                strRet = "If I had connection to database, I would tell your latest " + stLuis.entities[0].entity + " to you";
                             else
-                            {
-                                strRet = await GetStock(strStock);
-                            }
+                                strRet = "If I had connection to database, I would tell your latest stamps to you";
                             break;
-                        case "StockPrice":
-                            bSetStock = true;
-                            strRet = await GetStock(stLuis.entities[0].entity);
+                        case "TellSaldo":
+                            if (stLuis.entities.Any())
+                                strRet = "If I had connection to database, I would tell your "+ stLuis.entities[0].entity + " to you";
+                            else
+                                strRet = "If I had connection to database, I would tell your saldo to you";
+                            break;
+                        case "CreateStamp":
+                            if (stLuis.entities.Any())
+                                strRet = "If I had connection to database, I would deffinately let you create a new " + stLuis.entities[0].entity;
+                            else
+                                strRet = "If I had connection to database, I would deffinately let you create a new stamp";
+                            break;
+                        case "TellStatus":
+                            strRet = "If I had connection to database, I would tell whether you are in or out";
                             break;
                         default:
+                            strRet =
+                                "You can ask this bot to show your latest stampings or make a new stamping. It can also show yor current status or saldo.";
                             break;
                     }
                 }
@@ -56,35 +57,11 @@ namespace Stock_LUIS
                 }
 
 
-                Message ReplyMessage = message.CreateReplyMessage(strRet);
-                if (bSetStock)
-                {
-                    ReplyMessage.SetBotUserData("LastStock", stLuis.entities[0].entity);
-                }
-                return ReplyMessage;
+                return message.CreateReplyMessage(strRet);
             }
-            else
-            {
-                return HandleSystemMessage(message);
-            }
+            return HandleSystemMessage(message);
         }
-
-        private async Task<string> GetStock(string strStock)
-        {
-            string strRet = string.Empty;
-            double? dblStock = await Yahoo.GetStockPriceAsync(strStock);
-            // return our reply to the user
-            if (null == dblStock)
-            {
-                strRet = string.Format("Stock {0} doesn't appear to be valid", strStock.ToUpper());
-            }
-            else
-            {
-                strRet = string.Format("Stock: {0}, Value: {1}", strStock.ToUpper(), dblStock);
-            }
-
-            return strRet;
-        }
+        
 
         private Message HandleSystemMessage(Message message)
         {
@@ -101,12 +78,15 @@ namespace Stock_LUIS
             }
             else if (message.Type == "BotAddedToConversation")
             {
+                return message.CreateReplyMessage("Well, I'm here - am I?");
             }
             else if (message.Type == "BotRemovedFromConversation")
             {
+                return message.CreateReplyMessage("By then...");
             }
             else if (message.Type == "UserAddedToConversation")
             {
+                return message.CreateReplyMessage("Welcome new user");
             }
             else if (message.Type == "UserRemovedFromConversation")
             {

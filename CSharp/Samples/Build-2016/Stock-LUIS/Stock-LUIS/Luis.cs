@@ -17,7 +17,7 @@ namespace Stock_LUIS
 
             using (var client = new HttpClient())
             {
-                string uri = "https://api.projectoxford.ai/luis/v1/application?id=2f5aa73e-244c-4a4b-931d-44331ab5b1eb&subscription-key=6d0966209c6e4f6b835ce34492f3e6d9&q=" + strEscaped;
+                string uri = "https://api.projectoxford.ai/luis/v1/application?id=6f3cb055-31a8-4810-8897-4c778482b339&subscription-key=c98c774b24d346459aee70c976247d11&q=" + strEscaped;
                 HttpResponseMessage msg = await client.GetAsync(uri);
 
                 if (msg.IsSuccessStatusCode)
@@ -52,4 +52,5 @@ namespace Stock_LUIS
         public int endIndex { get; set; }
         public float score { get; set; }
     }
+
 }

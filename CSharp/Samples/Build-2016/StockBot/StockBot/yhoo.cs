@@ -14,14 +14,15 @@ namespace StockBot
             if (string.IsNullOrWhiteSpace(symbol))
                 return null;
 
-            string url = $"http://finance.yahoo.com/d/quotes.csv?s={symbol}&f=sl1";
-            string csv;
-            using (WebClient client = new WebClient())
-            {
-                csv = await client.DownloadStringTaskAsync(url).ConfigureAwait(false);
-            }
-            string line = csv.Split('\n')[0];
-            string price = line.Split(',')[1];
+            //string url = $"http://finance.yahoo.com/d/quotes.csv?s={symbol}&f=sl1";
+            //string csv;
+            //using (WebClient client = new WebClient())
+            //{
+            //    csv = await client.DownloadStringTaskAsync(url).ConfigureAwait(false);
+            //}
+            //string line = csv.Split('\n')[0];
+            //string price = line.Split(',')[1];
+            string price = "12";
 
             double result;
             if (double.TryParse(price, out result))
